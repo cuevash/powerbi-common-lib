@@ -112,7 +112,6 @@ in
 
 // common-lib-version
 let
-    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i45WMtQzUIqNBQA=", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type text) meta [Serialized.Text = true]) in type table [Version = _t]),
-    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Version", Currency.Type}})
+  Source = #table({"Version"}, {{"1.00"}})
 in
-    #"Changed Type"
+  Source
