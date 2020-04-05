@@ -112,6 +112,6 @@ in
 
 // common-lib-version
 let
-  Source = #table({"Version"}, {{"1.00"}})
+  Source = #table({"Version"}, {{"1.1"}})
 in
   Source
