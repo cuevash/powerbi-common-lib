@@ -73,10 +73,10 @@ in
     fnDateTable
 
 // CL_Calendar_SP_ES
-let fnDateTable = (StartDate as date, EndDate as date, FYStartMonth as number) as table =>
+let fnDateTable = (StartDate as date, EndDate as date) as table =>
   let
     // Based on the standard calendar in english columns
-    SourceCalendar_SP_EN = CL_Calendar(StartDate, EndDate, FYStartMonth, "es-ES", Day.Monday),
+    SourceCalendar_SP_EN = CL_Calendar(StartDate, EndDate, 1, "es-ES", Day.Monday),
 
     // Renamed Columns to ES
     RenamedColumns = Table.RenameColumns(SourceCalendar_SP_EN,{{"Date", "Fecha"}, {"Year", "Año"}, {"QuarterOfYear", "Trimestre"}, {"MonthOfYear", "MesNum"}, {"DayOfMonth", "DiaDelMes"}, {"DateInt", "FechaInt"}, {"MonthName", "Mes"}, {"MonthInCalendar", "MesCortoAñoFmt"}, {"QuarterInCalendar", "TrimestreAñoFmt"}, {"DayInWeek", "DiaDeLaSemanaNum"}, {"DayOfWeekName", "DiaDeLaSemana"}, {"WeekEnding", "SemanaFin"}, {"Week Number", "SemanaDelAño"}, {"MonthnYear", "AñoMesNth"}, {"QuarternYear", "AñoTrimestreNth"}, {"ShortYear", "AñoCorto"}})
@@ -86,10 +86,10 @@ in
   fnDateTable
 
 // CL_Calendar_SP_EN
-let fnDateTable = (StartDate as date, EndDate as date, FYStartMonth as number) as table =>
+let fnDateTable = (StartDate as date, EndDate as date) as table =>
   let
     // Based on the standard calendar in english columns
-    SourceCalendar_SP_EN = CL_Calendar(StartDate, EndDate, FYStartMonth, "es-EN", Day.Monday),
+    SourceCalendar_SP_EN = CL_Calendar(StartDate, EndDate, 1, "es-EN", Day.Monday),
 
     // Renamed Columns to ES
     RenamedColumns = Table.RenameColumns(SourceCalendar_SP_EN,{{"Date", "Fecha"}, {"Year", "Año"}, {"QuarterOfYear", "Trimestre"}, {"MonthOfYear", "MesNum"}, {"DayOfMonth", "DiaDelMes"}, {"DateInt", "FechaInt"}, {"MonthName", "Mes"}, {"MonthInCalendar", "MesCortoAñoFmt"}, {"QuarterInCalendar", "TrimestreAñoFmt"}, {"DayInWeek", "DiaDeLaSemanaNum"}, {"DayOfWeekName", "DiaDeLaSemana"}, {"WeekEnding", "SemanaFin"}, {"Week Number", "SemanaDelAño"}, {"MonthnYear", "AñoMesNth"}, {"QuarternYear", "AñoTrimestreNth"}, {"ShortYear", "AñoCorto"}})
@@ -100,18 +100,61 @@ in
 
 // CL_Calendar_SP_ES_Ex
 let
-    Source = CL_Calendar_SP_ES(#date(2020, 4, 4), #date(2021, 4, 4), 1)
+    Source = CL_Calendar_SP_ES(#date(2020, 4, 4), #date(2021, 4, 4))
 in
     Source
 
 // CL_Calendar_SP_EN_Ex
 let
-    Source = CL_Calendar_SP_EN(#date(2020, 4, 4), #date(2021, 4, 4), 1)
+    Source = CL_Calendar_SP_EN(#date(2020, 4, 4), #date(2021, 4, 4))
 in
     Source
 
 // common-lib-version
 let
-  Source = #table({"Version"}, {{"1.1"}})
+  Source = #table({"Version"}, {{"1.2"}})
 in
   Source
+
+// CL_ISO_3166-2:ES_Autonomous_Communities_And_Cities
+let
+    Source = Web.Page(Web.Contents("https://en.wikipedia.org/wiki/ISO_3166-2:ES")),
+    Data0 = Source{0}[Data],
+    #"Changed Type" = Table.TransformColumnTypes(Data0,{{"Code", type text}, {"Subdivision name (es)[note 1]", type text}, {"Subdivision name (en)[note 2]", type text}, {"Subdivision category", type text}}),
+    #"Promoted Headers" = Table.PromoteHeaders(#"Changed Type", [PromoteAllScalars=true]),
+    #"Changed Type1" = Table.TransformColumnTypes(#"Promoted Headers",{{"Code", type text}, {"Subdivision name (es)", type text}, {"Subdivision name (en)", type text}, {"Subdivision category", type text}}),
+    #"Trimmed Text" = Table.TransformColumns(#"Changed Type1",{{"Code", Text.Trim, type text}, {"Subdivision name (es)", Text.Trim, type text}, {"Subdivision name (en)", Text.Trim, type text}, {"Subdivision category", Text.Trim, type text}}),
+    #"Renamed Columns" = Table.RenameColumns(#"Trimmed Text",{{"Code", "CodeISO"}}),
+    #"Duplicated Column" = Table.DuplicateColumn(#"Renamed Columns", "CodeISO", "CodeISO - Copy"),
+    #"Split Column by Delimiter" = Table.SplitColumn(#"Duplicated Column", "CodeISO - Copy", Splitter.SplitTextByEachDelimiter({"-"}, QuoteStyle.Csv, true), {"CodeISO - Copy.1", "CodeISO - Copy.2"}),
+    #"Changed Type2" = Table.TransformColumnTypes(#"Split Column by Delimiter",{{"CodeISO - Copy.1", type text}, {"CodeISO - Copy.2", type text}}),
+    #"Renamed Columns1" = Table.RenameColumns(#"Changed Type2",{{"CodeISO - Copy.2", "CodeES"}}),
+    #"Reordered Columns" = Table.ReorderColumns(#"Renamed Columns1",{"CodeISO", "CodeES", "Subdivision name (es)", "Subdivision name (en)", "Subdivision category", "CodeISO - Copy.1"}),
+    #"Removed Columns" = Table.RemoveColumns(#"Reordered Columns",{"CodeISO - Copy.1"}),
+    #"Renamed Columns2" = Table.RenameColumns(#"Removed Columns",{{"Subdivision name (es)", "Name_ES"}, {"Subdivision name (en)", "Name_EN"}, {"Subdivision category", "Category"}, {"CodeISO", "ISO_Code"}, {"CodeES", "ES_Code"}})
+in
+    #"Renamed Columns2"
+
+// CL_ISO_3166-2:ES_Provinces
+let
+    Source = Web.Page(Web.Contents("https://en.wikipedia.org/wiki/ISO_3166-2:ES")),
+    Data1 = Source{1}[Data],
+    #"Changed Type" = Table.TransformColumnTypes(Data1,{{"Code", type text}, {"Subdivision name (es)", type text}, {"In autonomous community", type text}}),
+    #"Trimmed Text" = Table.TransformColumns(#"Changed Type",{{"Code", Text.Trim, type text}, {"Subdivision name (es)", Text.Trim, type text}, {"In autonomous community", Text.Trim, type text}}),
+    #"Renamed Columns" = Table.RenameColumns(#"Trimmed Text",{{"Code", "ISO_Code"}, {"Subdivision name (es)", "Name_ES"}, {"In autonomous community", "Autonomous_Community_Code_ES"}})
+in
+    #"Renamed Columns"
+
+// CL_ISO_3166-2:ES_Provinces_ES
+let
+    Source = #"CL_ISO_3166-2:ES_Provinces",
+    #"Renamed Columns" = Table.RenameColumns(Source,{{"ISO_Code", "ISO_ID"}, {"Name_ES", "Nombre_ES"}, {"Autonomous_Community_Code_ES", "CCAA_ID_ES"}})
+in
+    #"Renamed Columns"
+
+// CL_ISO_3166-2:ES_Autonomous_Communities_And_Cities_ES_
+let
+    Source = #"CL_ISO_3166-2:ES_Autonomous_Communities_And_Cities",
+    #"Renamed Columns" = Table.RenameColumns(Source,{{"ISO_Code", "ISO_ID"}, {"ES_Code", "CCAA_ID"}, {"Name_ES", "Nombre_ES"}, {"Name_EN", "Nombre_EN"}, {"Category", "Categoría"}})
+in
+    #"Renamed Columns"
