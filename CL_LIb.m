@@ -65,8 +65,8 @@ let
       InsertCalendarQtr = Table.AddColumn(InsertCalendarMonth, "QuarterInCalendar", each "Q" & Number.ToText([QuarterOfYear]) & " " & Number.ToText([Year]), type text),
       InsertDayWeek = Table.AddColumn(InsertCalendarQtr, "DayInWeek", each Date.DayOfWeek([Date], FirstDayOfWeek)),
       InsertDayName = Table.AddColumn(InsertDayWeek, "DayOfWeekName", each Date.DayOfWeekName([Date], CountryLanguage)),
-      InsertWeekStart = Table.AddColumn(InsertDayName, "WeekStart", each Date.StartOfWeek([Date], FirstDayOfWeek)),
-      InsertWeekEnding = Table.AddColumn(InsertWeekStart, "WeekEnding", each Date.EndOfWeek([Date], FirstDayOfWeek)),
+      InsertWeekStart = Table.AddColumn(InsertDayName, "WeekStart", each Date.StartOfWeek([Date], FirstDayOfWeek), type date),
+      InsertWeekEnding = Table.AddColumn(InsertWeekStart, "WeekEnding", each Date.EndOfWeek([Date], FirstDayOfWeek), type date),
       InsertWeekNumber= Table.AddColumn(InsertWeekEnding, "Week Number", each Date.WeekOfYear([Date], FirstDayOfWeek)),
       InsertMonthnYear = Table.AddColumn(InsertWeekNumber,"MonthnYear", each [Year] * 10000 + [MonthOfYear] * 100),
       InsertQuarternYear = Table.AddColumn(InsertMonthnYear,"QuarternYear", each [Year] * 10000 + [QuarterOfYear] * 100),
@@ -75,7 +75,7 @@ let
       AddFY = Table.AddColumn(InsertShortYear, "FY", each "FY"&(if [MonthOfYear]>=FYStartMonth then Text.From(Number.From([ShortYear])+1) else [ShortYear])),
       Result = Table.TransformColumnTypes(AddFY,{{"Year", Int64.Type}, {"QuarterOfYear", Int64.Type}, {"MonthOfYear", Int64.Type}, {"DayOfMonth", Int64.Type}, {"DateInt", Int64.Type}, {"MonthName", type text}, {"MonthInCalendar", type text}, {"QuarterInCalendar", type text}, {"DayInWeek", Int64.Type}, {"DayOfWeekName", type text}, {"Week Number", Int64.Type}, {"MonthnYear", Int64.Type}, {"QuarternYear", Int64.Type}, {"ShortYear", Int64.Type}, {"FY", type text}})
   in
-      Result
+		Result
   in
       fnDateTable,
 
@@ -217,6 +217,28 @@ let
   in
       Source,
 
+  Table.ApplyFncToColumns = 
+  let func = (Table as table, Function, TypeForColumns as type, optional ColumnNames as list) =>
+    let
+      columnNames = if ColumnNames = null then Table.ColumnNames(Table) else ColumnNames,
+      Transformation = Table.TransformColumns( Table, List.Transform(columnNames, each {_, Function, TypeForColumns} ) )
+    in
+    	Transformation ,
+    	documentation = [
+    	Documentation.Name =  " Table.TransformAllColumns.pq ",
+    	Documentation.Description = " Transforms all columns of a <code>table</code>  with one <code>function</code> and one <code>type</code>. ",
+    	Documentation.LongDescription = " Transforms all columns of a <code>table</code> with one <code>function</code> and one <code>type</code>. Optionial <code>ColumnNames</code> to limit to a specific list. ",
+    	Documentation.Category = " Table ",
+    	Documentation.Source = " www.TheBIccountant.com https://wp.me/p6lgsG-2dQ .   ",
+    	Documentation.Version = " 1.0 ",
+    	Documentation.Author = " Imke Feldmann ",
+    	Documentation.Examples = {[Description =  "  ",
+    	Code = " TableTransformAllColumns( #table( {""TextColumn1"", ""TextColumn2""}, List.Zip( { {""123<code>456</code>"" ,""789<code>101</code>""}, {""ABC<code>DEF</code>"" ,""GHI<code>JKL</code>""} } ) ), fnRemoveHtmlTags, type text) ",
+    	Result = " #table( {""TextColumn1"", ""TextColumn2""}, List.Zip( { {""123456"" ,""789101""}, {""ABCDEF"" ,""GHIJKL""} } ) ) "]}]  
+  in  
+    Value.ReplaceType(func, Value.ReplaceMetadata(Value.Type(func), documentation)),  
+
+
   Version_History =
   let
       //Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i45WMtQz0jNU0lEyMjAy0Dcw0TcEcTJSk0vyixyKM/PSS3MSi9ISk0v0kvNzgTLKCn75JanFMXkxeU45iQpJEAziKisruKUmlpQWQWR1FfzzUkFUSHk+mMooSk1Vio0FAA==", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type text) meta [Serialized.Text = true]) in type table [Version = _t, #"Revision Date/Time" = _t, #"Developer Name" = _t, #"Revision Notes (md)" = _t]),
@@ -258,6 +280,18 @@ Bla bla bla
 
 - Lib is now converted to a list that can be Versioned Controlled into GitHub
 
+          "],
+					[ 
+          Version = "1.3.1", 
+          Revision Date_Time = "2020/04/13",
+          Developer Name = "hector@singularfact.com",
+          Revision Notes md = "
+# Notes
+
+## Features
+
+- Added Function Table.ApplyFncToColumns
+
           "]
       }),
 
@@ -286,7 +320,8 @@ Bla bla bla
     CL_WorldBankIndicatorsLang = CL_WorldBankIndicatorsLang,
     CL_WorldBankIndicators = CL_WorldBankIndicators,
     CL WorldBank Sample = #"CL WorldBank Sample",
-    CL_WorldBankAllCountriesIndicators = CL_WorldBankAllCountriesIndicators
+    CL_WorldBankAllCountriesIndicators = CL_WorldBankAllCountriesIndicators,
+		Table.ApplyFncToColumns = Table.ApplyFncToColumns
   ]
 in
   CL_Lib
