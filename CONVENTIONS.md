@@ -25,9 +25,8 @@ This document defines some conventions|agreements on several levels of importanc
     - [Groups](#groups)
     - [Tables](#tables)
     - [Columns](#columns)
-    - [Parameters in a function](#parameters-in-a-function)
     - [Function Names](#function-names)
-    - [Parameters in a function](#parameters-in-a-function-1)
+    - [Parameters in a function](#parameters-in-a-function)
     - [Measures](#measures)
 
 ## Naming
@@ -147,22 +146,13 @@ And then if for a spanish audience oriented they maybe converted to:
 
 - **Casos Confirmados**
 
-### Parameters in a function
+### Function Names
 
 [**UpperCamel**]
 
 ex:
 
-- **RangeStart**
-- **RangeEnd**
-
-### Function Names
-
-[**Camel Case**]
-
-ex:
-
-- **Date.IsInPreviousNWeeks(_dateTime_ as any, _weeks_ as number)**
+- **Date.IsInPreviousNWeeks(dateTime as any, weeks as number)**
 
 ### Parameters in a function
 
@@ -170,21 +160,10 @@ ex:
 
 ex:
 
-- **Date.IsInPreviousNWeeks(_dateTime_ as any, _weeks_ as number)**
+- **Date.IsInPreviousNWeeks(dateTime as any, weeks as number)**
 
 ### Measures
 
 [**Sentence Case** in customer's language preference]
 
 ex:
-
-- **Sales Amount**
-- **Ventas Cantidad**
-
-```
-<button onClick={() => push('/other/path')} />
-<button onClick={() => location.url = '/other/path')} />
-```
-
-`reselect`
-
