@@ -238,6 +238,33 @@ let
   in  
     Value.ReplaceType(func, Value.ReplaceMetadata(Value.Type(func), documentation)),  
 
+  Table.ApplyFncToColumns = 
+  let func = (Table as table, Function, TypeForColumns as type, optional ColumnNames as list) =>
+    let
+      columnNames = if ColumnNames = null then Table.ColumnNames(Table) else ColumnNames,
+      Transformation = Table.TransformColumns( Table, List.Transform(columnNames, each {_, Function, TypeForColumns} ) )
+    in
+    	Transformation ,
+    	documentation = [
+    	Documentation.Name =  " Table.TransformAllColumns.pq ",
+    	Documentation.Description = " Transforms all columns of a <code>table</code>  with one <code>function</code> and one <code>type</code>. ",
+    	Documentation.LongDescription = " Transforms all columns of a <code>table</code> with one <code>function</code> and one <code>type</code>. Optionial <code>ColumnNames</code> to limit to a specific list. ",
+    	Documentation.Category = " Table ",
+    	Documentation.Source = " www.TheBIccountant.com https://wp.me/p6lgsG-2dQ .   ",
+    	Documentation.Version = " 1.0 ",
+    	Documentation.Author = " Imke Feldmann ",
+    	Documentation.Examples = {[Description =  "  ",
+    	Code = " TableTransformAllColumns( #table( {""TextColumn1"", ""TextColumn2""}, List.Zip( { {""123<code>456</code>"" ,""789<code>101</code>""}, {""ABC<code>DEF</code>"" ,""GHI<code>JKL</code>""} } ) ), fnRemoveHtmlTags, type text) ",
+    	Result = " #table( {""TextColumn1"", ""TextColumn2""}, List.Zip( { {""123456"" ,""789101""}, {""ABCDEF"" ,""GHIJKL""} } ) ) "]}]  
+  in  
+    Value.ReplaceType(func, Value.ReplaceMetadata(Value.Type(func), documentation)),  
+
+  Table.HexToDec = 
+    (hexString as text) 
+      => Expression.Evaluate("0x"&hexString);
+
+    // END OF FUNCTIONS
+
 
   Version_History =
   let
@@ -292,6 +319,18 @@ Bla bla bla
 
 - Added Function Table.ApplyFncToColumns
 
+          "],
+					[ 
+          Version = "1.3.2", 
+          Revision Date_Time = "2020/05/16",
+          Developer Name = "hector@singularfact.com",
+          Revision Notes md = "
+# Notes
+
+## Features
+
+- Added Function Table.HexToDec
+
           "]
       }),
 
@@ -322,6 +361,7 @@ Bla bla bla
     CL WorldBank Sample = #"CL WorldBank Sample",
     CL_WorldBankAllCountriesIndicators = CL_WorldBankAllCountriesIndicators,
 		Table.ApplyFncToColumns = Table.ApplyFncToColumns
+    Table.HexToDec = Table.HexToDec
   ]
 in
   CL_Lib
