@@ -11,15 +11,27 @@ let
   in
       Source,
 
-  CL_YearWeekToDateISO =
+  CL_YearWeekToFirstDateISO =
   let
       Source = (year as number, week as number) =>  
       let  
-          firstDayYear = #date(year,1,2),
+          firstDayYear = #date(year,1,1),
           startOfFirstWeek = Date.StartOfWeek(firstDayYear, Day.Monday),
           startOfWeek = Date.AddWeeks(startOfFirstWeek, week - 1)
       in
           startOfWeek
+  in
+      Source,
+
+  CL_YearQuarterToFirstDateISO =
+  let
+      Source = (year as number, quarter as number) =>  
+      let  
+          firstDayYear = #date(year,1,1),
+          startOfFirstQuarter = Date.StartOfQuarter(firstDayYear),
+          startOfQuarter = Date.AddQuarters(startOfFirstQuarter, quarter - 1)
+      in
+          startOfQuarter
   in
       Source,
 
@@ -310,6 +322,18 @@ Bla bla bla
 
 - Added Function CL_HexToDec
 
+          "],
+					[ 
+          Version = "1.3.3", 
+          Revision Date_Time = "2021/02/06",
+          Developer Name = "hector@singularfact.com",
+          Revision Notes md = "
+# Notes
+
+## Features
+
+- Added Function CL_YearQuarterToFirstDateISO
+
           "]
       }),
 
@@ -326,6 +350,7 @@ Bla bla bla
     Version_History = Version_History,
     CL_TrimColumnUpperHeaders = CL_TrimColumnUpperHeaders,
     CL_YearWeekToDateISO = CL_YearWeekToDateISO,
+    CL_YearQuarterToFirstDateISO = CL_YearQuarterToFirstDateISO,
     CL_TrimColumnHeaders = CL_TrimColumnHeaders,
     CL_Table_TrimAndCapitalizeHeaders = CL_Table_TrimAndCapitalizeHeaders,
     CL_Calendar = CL_Calendar,
