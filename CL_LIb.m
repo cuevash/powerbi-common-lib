@@ -349,7 +349,7 @@ Bla bla bla
   CL_Lib = [
     Version_History = Version_History,
     CL_TrimColumnUpperHeaders = CL_TrimColumnUpperHeaders,
-    CL_YearWeekToDateISO = CL_YearWeekToDateISO,
+    CL_YearWeekToFirstDateISO = CL_YearWeekToFirstDateISO,
     CL_YearQuarterToFirstDateISO = CL_YearQuarterToFirstDateISO,
     CL_TrimColumnHeaders = CL_TrimColumnHeaders,
     CL_Table_TrimAndCapitalizeHeaders = CL_Table_TrimAndCapitalizeHeaders,
